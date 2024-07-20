@@ -37,7 +37,6 @@ async def update_task(task_id: int, data: TaskBase, session: AsyncSession = Depe
                       ):
     task = await get_task_from_db_by_id(session, task_id)
     update_data = data.model_dump(exclude_unset=True)
-
     for key, value in update_data.items():
         if hasattr(task, key):
             setattr(task, key, value)
