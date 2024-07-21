@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.access_utils import get_task_from_db_by_id
@@ -26,8 +26,9 @@ async def get_task(task_id: int, session: AsyncSession = Depends(db.session_depe
 async def create_task(data: TaskBase, session: AsyncSession = Depends(db.session_dependency),
                       ):
     task = MTask(**data.model_dump())
-    session.add(task)
     task.created_at, task.updated_at = datetime.now(), datetime.now()
+    session.add(task)
+
     await session.commit()
     return task
 
@@ -44,6 +45,7 @@ async def update_task(task_id: int, data: TaskBase, session: AsyncSession = Depe
     task.updated_at = datetime.now()
     session.add(task)
     await session.commit()
+    await session.refresh(task)
 
     return task
 
