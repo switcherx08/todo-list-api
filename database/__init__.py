@@ -1,3 +1,4 @@
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 import os
 from dotenv import load_dotenv
@@ -32,6 +33,14 @@ class AsyncDatabaseSession:
     async def session_dependency(self) -> AsyncSession:
         async with self.session_factory() as session:
             yield session
+
+    async def init_tables(self):
+        async with self._engine.begin() as conn:
+            result = await conn.execute(text("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public';"))
+            tables = result.fetchall()
+            if not tables:
+                from .models import Base
+                await conn.run_sync(Base.metadata.create_all)
 
 
 db = AsyncDatabaseSession()
