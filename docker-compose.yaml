@@ -10,19 +10,31 @@ services:
       - .:/app
     ports:
       - "8000:8000"
+    environment:
+      - DB_INTERNAL_HOST=db
+    networks:
+      - todo_network
     depends_on:
       - db
   db:
     image: postgres:15-alpine
+    env_file:
+      - '.env'
     volumes:
       - postgres_data_dev:/var/lib/postgresql/data/
     ports:
       - "5432:5432"
     expose:
       - 5432
+    networks:
+      - todo_network
     environment:
       - POSTGRES_USER=${DATABASE_USER}
       - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
       - POSTGRES_DB=${DATABASE_NAME}
 volumes:
   postgres_data_dev:
+
+networks:
+  todo_network:
+    driver: bridge

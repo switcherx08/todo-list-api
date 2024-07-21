@@ -15,7 +15,7 @@ load_dotenv()
 class AsyncDatabaseSession:
     DB_USER = os.getenv("DB_USER", "postgres")
     DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
-    DB_HOST = os.getenv("DB_HOST", "localhost")
+    DB_HOST = os.getenv("DB_INTERNAL_HOST", "localhost")
     DB_NAME = os.getenv("DB_NAME", "dev_db")
     DB_PORT = os.getenv("DB_PORT", 5432)
 
@@ -47,11 +47,10 @@ class AsyncDatabaseSession:
         async with self.session_factory() as session:
             yield session
 
-    @staticmethod
-    async def check_database_available(retries=5, delay=5):
+    async def check_database_available(self, retries=5, delay=5):
         for attempt in range(retries):
             with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
-                if sock.connect_ex((os.getenv('DATABASE_HOST'), int(os.getenv('DATABASE_PORT')))) == 0:
+                if sock.connect_ex((self.DB_HOST, int(self.DB_PORT))) == 0:
                     return True
                 else:
                     logger.warning(f"Попытка {attempt + 1} не удалась")
