@@ -67,11 +67,11 @@ class AsyncDatabaseSession:
                 if not tables:
                     from .models import Base
                     await conn.run_sync(Base.metadata.create_all)
-                    logger.info("Таблицы созданы")
+                    logger.info("The tables are created")
                 else:
-                    logger.info("Таблицы уже существуют")
+                    logger.info("The tables already exist")
         else:
-            print("Не удалось подключиться к базе данных")
+            print("Could not connect to the database")
 
 
 db = AsyncDatabaseSession()
