@@ -40,14 +40,14 @@ class AsyncDatabaseSession:
             self._engine, expire_on_commit=False, class_=AsyncSession
         )
 
-    def get_db_connection_string(self):
+    def get_db_connection_string(self) -> str:
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
     async def session_dependency(self) -> AsyncSession:
         async with self.session_factory() as session:
             yield session
 
-    async def check_database_available(self, retries=5, delay=5):
+    async def check_database_available(self, retries=5, delay=5) -> bool:
         for attempt in range(retries):
             with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
                 if sock.connect_ex((self.DB_HOST, int(self.DB_PORT))) == 0:
@@ -57,7 +57,7 @@ class AsyncDatabaseSession:
                     await asyncio.sleep(delay)
         return False
 
-    async def init_tables(self):
+    async def init_tables(self) -> None:
         if await self.check_database_available():
             async with self._engine.begin() as conn:
                 result = await conn.execute(
